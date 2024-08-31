@@ -11,4 +11,4 @@
 | Federico Pratto  | 96223 |
 | Rogger Aldair Paredes Tavara  | 97976 |
 
-- [Repositorio al informe en overleaf](https://www.overleaf.com/project/66cff172758e0c3a79588782)
+- [Informe del Trabajo Práctico](https://docs.google.com/document/d/15LvIB2P4ZTY3Jx9WWOxP5crdg1EdURRtsRJR5iagp3M/edit?usp=drive_link)
