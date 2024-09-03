@@ -58,6 +58,7 @@ def backtrack(tasks, earnings, required_tasks, MAX_WEEKS):
 def exercise_1():
     if len(sys.argv) < 3:
         print("Required files missing in parameters.")
+        return
     tasks = []
     required_tasks = parse_tasks_file(sys.argv[1])
     earnings = parse_earnings_file(sys.argv[2])
