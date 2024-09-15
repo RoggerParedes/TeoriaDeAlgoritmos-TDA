@@ -16,8 +16,12 @@ def parse_earnings_file(filename):
             week_number = int(split_line[0])
             earnings = list(map(int, split_line[1::]))
             potential_earnings[week_number] = earnings
-            for index, earning in enumerate(earnings):
+            for index, earning in reversed(list(enumerate(earnings))):
                 try:
+                    if index < 6:
+                            if max_earning_per_week[index+2] > earning and max_earning_per_week[index+2] > max_earning_per_week[index+1]:
+                                max_earning_per_week[index+1] = max_earning_per_week[index+2]
+                                continue
                     if max_earning_per_week[index + 1] < earning:
                         max_earning_per_week[index + 1] = earning
                 except KeyError:

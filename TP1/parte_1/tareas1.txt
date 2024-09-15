@@ -1,0 +1,6 @@
+1,Tarea A
+2,Tarea B,1,3
+3,Tarea C,5
+4,Tarea D,6
+5,Tarea E,1
+6,Tarea F
