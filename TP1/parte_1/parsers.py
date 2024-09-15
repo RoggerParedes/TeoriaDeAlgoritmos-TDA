@@ -10,15 +10,15 @@ def parse_tasks_file(filename):
 def parse_earnings_file(filename):
     potential_earnings = {}
     max_earning_per_week = {}
-    with open(filename, "r") as file:
-        for line in file:
+    with open(filename, "r") as earnings_file:
+        for line in earnings_file:
             split_line = line.split(',')
-            week_number = int(split_line[0])
+            task_number = int(split_line[0])
             earnings = list(map(int, split_line[1::]))
-            potential_earnings[week_number] = earnings
+            potential_earnings[task_number] = earnings
             for index, earning in reversed(list(enumerate(earnings))):
                 try:
-                    if index < 6:
+                    if index < len(earnings) - 1:
                             if max_earning_per_week[index+2] > earning and max_earning_per_week[index+2] > max_earning_per_week[index+1]:
                                 max_earning_per_week[index+1] = max_earning_per_week[index+2]
                                 continue
