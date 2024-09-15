@@ -33,6 +33,8 @@ def calculate_earnings_for_task(task, earnings, week_number):
 
 
 def backtrack(tasks, earnings, required_tasks, max_weeks, max_earning_per_week):
+    """Evalua el arbol de estados y poda las ramas segun la ganancia estimada no supere el maximo actual
+    o el orden de taras no sea valido.."""
     global MAX_EARNINGS, BEST_RESULT
     week_number = len(tasks)+1
     earnings_so_far = calculate_earnings(tasks, earnings)
@@ -52,6 +54,8 @@ def backtrack(tasks, earnings, required_tasks, max_weeks, max_earning_per_week):
                     max_earning = max_earning_per_week[week_number+1]
                 except KeyError:
                     max_earning = max_earning_per_week[week_number]
+                # La ganancia estimada se define como la ganancia hasta ahora + la ganancia potencial
+                # si cada semana se ganase el maximo posible.
                 max_possible_earning = (earnings_so_far + task_earnings +
                                         max_earning * (max_weeks - week_number))
                 # Solo se evaluan los estados posteriores si el beneficio estimado es mayor que el actual.
