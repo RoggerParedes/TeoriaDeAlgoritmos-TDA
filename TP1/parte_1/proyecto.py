@@ -1,9 +1,12 @@
 import sys
+import time
+from test_file_generator import generate_files
 from parsers import parse_tasks_file, parse_earnings_file
 
 BEST_RESULT = []
 MAX_EARNINGS = 0
 TASK_NUMBER = 0
+NUMBER_OF_TASKS = 15
 
 
 def calculate_earnings(tasks, earnings):
@@ -68,11 +71,15 @@ def exercise_1():
     if len(sys.argv) < 3:
         print("Required files missing in parameters.")
         return
+    generate_files(NUMBER_OF_TASKS)
     tasks = []
     required_tasks = parse_tasks_file(sys.argv[1])
     earnings, max_earning_per_week = parse_earnings_file(sys.argv[2])
     MAX_WEEKS = len(earnings[1])
+    start_time = time.time()
     backtrack(tasks, earnings, required_tasks, MAX_WEEKS, max_earning_per_week)
+    end_time = time.time()
+    print(f"Execution time: {end_time - start_time} seconds")
     print(MAX_EARNINGS)
     print(BEST_RESULT)
 
