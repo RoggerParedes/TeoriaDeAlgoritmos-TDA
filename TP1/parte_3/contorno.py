@@ -1,14 +1,5 @@
 import sys
 
-piece_global_counter = 0
-
-def get_max(array):
-    max_value = 0
-    for value in array:
-        if value > max_value:
-            max_value = value
-    return max_value
-
 def split_pieces(pieces):
     mid = (len(pieces) + 1) // 2
     first_half = pieces[:mid]
@@ -27,86 +18,54 @@ def read_file(file_path):
     return pieces
 
 def calculate_coordinates(piece):
-    global piece_global_counter
-    piece_global_counter += 1
-    return [(piece[0], piece[1], piece_global_counter), (piece[2], 0, piece_global_counter)]
+    return [(piece[0], piece[1]), (piece[2], 0)]
 
-def calculate_contour(coordinates):
+def calculate_contour(left_piece, right_piece):
     contour = []
-
-    coordinates.sort(key=lambda x: x[0])
-    active_pieces = []
-    active_heights = []
-    current_height = 0
-    current_piece = 0
-
-    for coordinate in coordinates:
-        print("\n")
-        print("Coordinate: ", coordinate)
-        print("Current piece: ", current_piece)
-        print("Current height: ", current_height)
-        print("Active pieces: ", active_pieces)
-        print("Active heights: ", active_heights)
-        if len(contour) == 0:
-            contour.append(coordinate)
-            active_heights.append(coordinate[1])
-            active_pieces.append(coordinate[2])
-            current_height = coordinate[1]
-            current_piece = coordinate[2]
-        else:
-            if coordinate[1] > current_height:
-                contour.append(coordinate)
-                active_heights.append(coordinate[1])
-                active_pieces.append(coordinate[2])
-                current_height = coordinate[1]
-                current_piece = coordinate[2]
-            
-            elif coordinate[1] == 0:
-                if coordinate[2] == current_piece:
-                    if len(active_pieces) == 1:
-                        contour.append(coordinate)
-                        current_height = 0
-                        current_piece = 0
-                    else:
-                        active_heights.remove(current_height)
-                        active_pieces.remove(current_piece)
-                        current_height = get_max(active_heights)
-                        current_piece = active_pieces[active_heights.index(current_height)]
-                        contour.append((coordinate[0], current_height, coordinate[2]))
-                else:
-                    if coordinate[2] in active_pieces:
-                        del active_heights[active_pieces.index(coordinate[2])]
-                        active_pieces.remove(current_piece)
-            
-            elif coordinate[1] < current_height:
-                if coordinate[2] in active_pieces:
-                    del active_heights[active_pieces.index(coordinate[2])]
-                    active_pieces.remove(coordinate[2])
-                else:
-                    active_pieces.append(coordinate[2])
-                    active_heights.append(coordinate[1])
+    h1, h2 = 0, 0 # Alturas de los dos piezas
+    i, j = 0, 0 # Indice de las piezas
+    current_position = 0 # Posicion actual
+    max_height = 0 # Altura maxima
     
-    print("Contour: ", contour)
+    while i < len(left_piece) and j < len(right_piece): # While there are pieces to compare
 
+        if left_piece[i][0] < right_piece[j][0]: # Si pieza izquierda viene antes
+            current_position, h1 = left_piece[i] # Actualizo la posicion y la altura a la de la pieza izquierda
+            max_height = max(h1, h2) # Actualizo la altura maxima
+            i += 1 # Avanzo al siguiente indice de la pieza izquierda
+
+        elif left_piece[i][0] > right_piece[j][0]: # Si pieza derecha viene antes
+            current_position, h2 = right_piece[j] # Actualizo la posicion y la altura a la de la pieza derecha
+            max_height = max(h1, h2) # Actualizo la altura maxima
+            j += 1 # Avanzo al siguiente indice de la pieza derecha
+
+        else: # Si las piezas tienen la misma posicion
+            current_position, h1, h2 = left_piece[i][0], left_piece[i][1], left_piece[j][1] # Actualizo la posicion y las alturas
+            max_height = max(h1, h2) # Actualizo la altura maxima
+            i += 1 # Avanzo al siguiente indice de la pieza izquierda
+            j += 1 # Avanzo al siguiente indice de la pieza derecha
+        
+        if not contour or contour[-1][1] != max_height: # Agrego la coordenada si cambio la altura o si es la primera
+            contour.append((current_position, max_height))
+    
+    # Este paso sirve para agregar las piezas restantes si es que quedaron
+    contour.extend(left_piece[i:])
+    contour.extend(right_piece[j:])
+    
     return contour
 
 def get_contour(pieces):
     if len(pieces) == 1:
-        #print("Base case 1", pieces)
+        # Caso base
         return calculate_coordinates(pieces[0])
-    if len(pieces) == 2:
-        #print("Base case 2", pieces)
-        coordinates = []
-        coordinates.extend(calculate_coordinates(pieces[0]))
-        coordinates.extend(calculate_coordinates(pieces[1]))
-        return calculate_contour(coordinates)
     else:
+        # Dividir
         first_half, second_half = split_pieces(pieces)
-        #print("Recursive case ", first_half, second_half)
-        coordinates = []
-        coordinates.extend(get_contour(first_half))
-        coordinates.extend(get_contour(second_half))
-        return calculate_contour(coordinates)
+        first_half = get_contour(first_half)
+        second_half = get_contour(second_half)
+
+        # Conquistar
+        return calculate_contour(first_half, second_half)
 
 def main():
     if len(sys.argv) != 2:
@@ -115,9 +74,8 @@ def main():
     
     file_path = sys.argv[1]
     pieces = read_file(file_path)
+    pieces.sort()
     contour = get_contour(pieces)
     print(contour)
-    
-
 
 main()
