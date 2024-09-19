@@ -74,7 +74,6 @@ def main():
     
     file_path = sys.argv[1]
     pieces = read_file(file_path)
-    pieces.sort()
     contour = get_contour(pieces)
     print(contour)
 
