@@ -28,7 +28,6 @@ def calculate_contour(left_piece, right_piece):
     max_height = 0 # Altura maxima
     
     while i < len(left_piece) and j < len(right_piece): # While there are pieces to compare
-
         if left_piece[i][0] < right_piece[j][0]: # Si pieza izquierda viene antes
             current_position, h1 = left_piece[i] # Actualizo la posicion y la altura a la de la pieza izquierda
             max_height = max(h1, h2) # Actualizo la altura maxima
@@ -40,7 +39,7 @@ def calculate_contour(left_piece, right_piece):
             j += 1 # Avanzo al siguiente indice de la pieza derecha
 
         else: # Si las piezas tienen la misma posicion
-            current_position, h1, h2 = left_piece[i][0], left_piece[i][1], left_piece[j][1] # Actualizo la posicion y las alturas
+            current_position, h1, h2 = left_piece[i][0], left_piece[i][1], right_piece[j][1] # Actualizo la posicion y las alturas
             max_height = max(h1, h2) # Actualizo la altura maxima
             i += 1 # Avanzo al siguiente indice de la pieza izquierda
             j += 1 # Avanzo al siguiente indice de la pieza derecha
