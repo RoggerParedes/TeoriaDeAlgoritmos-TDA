@@ -1,0 +1,7 @@
+.idea/
+.private/
+.DS_Store
+**/__pycache__
+venv/
+.vscode/
+TP1/parte_3/partes2.txt
