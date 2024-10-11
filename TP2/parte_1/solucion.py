@@ -1,92 +1,99 @@
 import copy
+import sys
 
-def max_suma_rec(matriz, n, m):
-    # Si ya hemos calculado la solución para esta celda, la devolvemos
+
+def leer_matriz_archivo(nombre_archivo):
+    matriz = []
+    with open(nombre_archivo, 'r') as archivo:
+        for linea in archivo:
+            fila = list(map(int, linea.strip().split(',')))
+            matriz.append(fila)
+    return matriz
+
+def max_suma_rec(matriz, n, m, memo, manzanas):
     if memo[n][m] != 0:
-        return memo[n][m]
+        return memo[n][m], manzanas[n][m]
     
-    # Si llegamos al inicio (0, 0), devolvemos su valor
     if n == 0 and m == 0:
         memo[n][m] = matriz[0][0]
-        paths[n][m].append([(n, m)])  # Almacena el camino inicial
-        return matriz[0][0]
+        manzanas[n][m] = [(n + 1, m + 1)]
+        return matriz[0][0], manzanas[n][m]
     
     value_to_compare = matriz[n][m]
     
-    # Llamadas recursivas para moverse hacia arriba y hacia la izquierda
     left = -1
     top = -1
-    vec_max = []
-    max_value = 0  # Para almacenar la ganancia máxima en esta celda
-    
-    # Si se puede mover a la izquierda
     if m - 1 >= 0:
-        left = max_suma_rec(matriz, n, m - 1)
+        left, vec_left = max_suma_rec(matriz, n, m - 1, memo, manzanas)
     
-    # Si se puede mover hacia arriba
     if n - 1 >= 0:
-        top = max_suma_rec(matriz, n - 1, m)
+        top, vec_top = max_suma_rec(matriz, n - 1, m, memo, manzanas)
     
-    # Recorrer todas las celdas anteriores para encontrar el máximo
-    for i in range(n + 1):
-        for j in range(m + 1):
-            if matriz[i][j] > value_to_compare:
-                max_aux = memo[i][j] + value_to_compare
-                if max_value < max_aux:
-                    # Nuevo máximo encontrado, reiniciar lista de caminos
-                    vec_max = [copy.deepcopy(p) for p in paths[i][j]]
-                    for v in vec_max:
-                        v.append((n+ 1, m+ 1))  # Agrega la posición actual al camino
-                    max_value = max_aux
-                elif max_value == max_aux:
-                    # Si el nuevo valor es igual al máximo, agregarlo a los caminos
-                    new_paths = [copy.deepcopy(p) for p in paths[i][j]]
-                    for v in new_paths:
-                        v.append((n+ 1, m+ 1))
-                    vec_max.extend(new_paths)  # Agregar nuevos caminos a la lista
+    if left < value_to_compare and top < value_to_compare:
+        memo[n][m] = value_to_compare
+        manzanas[n][m] = [(n+ 1, m+ 1)]
+        return value_to_compare, manzanas[n][m]
 
-    # Si no se encontró ningún camino mayor, usar el valor de la celda actual
-    if max_value < value_to_compare:
-        vec_max = [[(n+ 1, m+ 1)]]
-        max_value = value_to_compare
-    
-    # Guardar el resultado en la tabla de memoización
-    memo[n][m] = max_value
-    
-    # Almacenar todos los caminos posibles en la tabla de caminos
-    paths[n][m] = vec_max
-    return memo[n][m]
+    else:
+        vec_max = []
+        max_value = value_to_compare  
+        for i in range(n + 1):
+            for j in range(m + 1):
+                if matriz[i][j] > value_to_compare:
+                    aux = memo[i][j] + value_to_compare
+                    if(aux > max_value):
+                        max_value = aux
+                        vec_max = copy.deepcopy(manzanas[i][j])
+        vec_max.append((n+ 1, m+ 1))
+        
+        if(max_value > top and max_value > left):
+            memo[n][m] = max_value
+            manzanas[n][m] = copy.deepcopy(vec_max)
+            return max_value, manzanas[n][m]
+        else:
+            vec_left = manzanas[n][m - 1]
+            vec_top = manzanas[ n - 1][m]
+            if(max_value == top == left):
+                memo[n][m] = max_value
+                min_length = min(len(vec_max), len(vec_left), len(vec_top))
+                if len(vec_max) == min_length:
+                    manzanas[n][m] = copy.deepcopy(vec_max)
+                elif len(vec_left) == min_length:
+                    manzanas[n][m] = copy.deepcopy(vec_left)
+                else:
+                    manzanas[n][m] = copy.deepcopy(vec_top)
+                return max_value, manzanas[n][m]
+            else:
+                if(max_value < top and left <= top ):
+                    memo[n][m] = max_value
+                    manzanas[n][m] = copy.deepcopy(vec_max)
+                    return top, vec_top
+                else:
+                    memo[n][m] = max_value
+                    manzanas[n][m] = copy.deepcopy(vec_max)
+                    return left, vec_left
+                
+def main():
+    if len(sys.argv) < 4:
+        print("Uso: python tareas.py filas columnas archivo.txt")
+        return
 
-# Matriz de ejemplo
-matriz = [
-    [100, 150, 300, 100, 50],
-    [80,  100, 80,  120, 100],
-    [200, 100, 90,  120, 100],
-    [140, 60,  80,  90,  50]
-]
+    filas = int(sys.argv[1])
+    columnas = int(sys.argv[2])
+    nombre_archivo = sys.argv[3]
+    ganancia_total, manzanas_seleccionadas = 0, []
+    if(filas == 0 and columnas == 0):
+        print("Manzanas: ", [])
+        print("Ganancia total: ", 0)
+    else:
+        matriz = leer_matriz_archivo(nombre_archivo)
+        memo = [[0 for _ in range(columnas)] for _ in range(filas)]
+        manzanas = [[[] for _ in range(columnas)] for _ in range(filas)]
+        ganancia_total, manzanas_seleccionadas = max_suma_rec(matriz, filas-1, columnas-1, memo, manzanas)
+        print("Manzanas: ", end="")
+        print(" ".join(f"({fila},{columna})" for fila, columna in manzanas_seleccionadas))
+        print("Ganancia: ", end="")
+        print(" + ".join(f"{matriz[fila-1][columna-1]}" for fila, columna in manzanas_seleccionadas)+ f" = {ganancia_total}")
 
-# Dimensiones de la matriz
-n = len(matriz)
-m = len(matriz[0])
-
-# Tabla de memorización para almacenar las ganancias máximas calculadas
-memo = [[0 for _ in range(m)] for _ in range(n)]
-
-# Tabla para almacenar los caminos
-paths = [[[] for _ in range(m)] for _ in range(n)]
-
-# Llamada a la función recursiva
-ganancia = max_suma_rec(matriz, n-1, m-1)
-
-# Imprimir la ganancia máxima
-print(f"Ganancia máxima: {ganancia}")
-
-# Imprimir la tabla de memorización (memo)
-print("Memo:")
-for fila in memo:
-    print(fila)
-
-# Imprimir los caminos máximos
-print("Caminos máximos:")
-for camino in paths[n-1][m-1]:
-    print(camino)
+if __name__ == "__main__":
+    main()
