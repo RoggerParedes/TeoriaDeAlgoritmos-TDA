@@ -77,7 +77,6 @@ def exercise_1():
     tasks = []
     required_tasks = parse_tasks_file(sys.argv[1])
     earnings, max_earning_per_week = parse_earnings_file(sys.argv[2])
-    print(max_earning_per_week)
     MAX_WEEKS = len(earnings[1])
     start_time = time.time()
     backtrack(tasks, earnings, required_tasks, MAX_WEEKS, max_earning_per_week)
