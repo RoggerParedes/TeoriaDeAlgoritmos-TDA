@@ -11,7 +11,7 @@ def merge_sort(lst):
 def merge(left, right):
   result = []
   while left and right:
-    if left[0] > right[0]:
+    if left[0][1] > right[0][1]:
       result.append(left[0])
       left.pop(0)
     else:
@@ -43,11 +43,12 @@ def parse_earnings_file(filename):
             potential_earnings[task_number] = earnings
             max_weeks = len(earnings)
             for week_number in range(1, max_weeks + 1):
+                task_earning_tuple = (task_number, earnings[week_number-1])
                 try:
-                    max_earning_per_week[week_number].append(earnings[week_number-1])
+                    max_earning_per_week[week_number].append(task_earning_tuple)
                 except KeyError:
                     max_earning_per_week[week_number] = []
-                    max_earning_per_week[week_number].append(earnings[week_number-1])
-    for key, value in potential_earnings.items():
-        max_earning_per_week[key] = merge_sort(value)
+                    max_earning_per_week[week_number].append(task_earning_tuple)
+    for key, value in max_earning_per_week.items():
+        max_earning_per_week[key] = merge_sort(value)[0][0]
     return potential_earnings, max_earning_per_week
