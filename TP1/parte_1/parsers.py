@@ -1,3 +1,28 @@
+def merge_sort(lst):
+  if len(lst) <= 1:
+    return lst
+  middle = len(lst) // 2
+  left = lst[:middle]
+  right = lst[middle:]
+  sleft = merge_sort(left)
+  sright = merge_sort(right)
+  return merge(sleft, sright)
+
+def merge(left, right):
+  result = []
+  while left and right:
+    if left[0] > right[0]:
+      result.append(left[0])
+      left.pop(0)
+    else:
+      result.append(right[0])
+      right.pop(0)
+  if left:
+    result += left
+  if right:
+    result += right
+  return result
+
 def parse_tasks_file(filename):
     required_tasks = {}
     with open(filename, "r") as file:
@@ -16,18 +41,13 @@ def parse_earnings_file(filename):
             task_number = int(split_line[0])
             earnings = list(map(int, split_line[1::]))
             potential_earnings[task_number] = earnings
-            # Se construye un diccionario con las maximas ganancias potenciales
-            # para cada semana. La ganancia no necesariamente decrece a medida que pasan las semanas, y
-            # siempre se toma la maxima ganancia de las semanas restantes para todas las tareas.
-            for index, earning in reversed(list(enumerate(earnings))):
+            max_weeks = len(earnings)
+            for week_number in range(1, max_weeks + 1):
                 try:
-                    if index < len(earnings) - 1:
-                            if max_earning_per_week[index+2] > earning:
-                                if max_earning_per_week[index+2] > max_earning_per_week[index+1]:
-                                    max_earning_per_week[index+1] = max_earning_per_week[index+2]
-                                    continue
-                    if max_earning_per_week[index + 1] < earning:
-                        max_earning_per_week[index + 1] = earning
+                    max_earning_per_week[week_number].append(earnings[week_number-1])
                 except KeyError:
-                    max_earning_per_week[index+1] = earning
+                    max_earning_per_week[week_number] = []
+                    max_earning_per_week[week_number].append(earnings[week_number-1])
+    for key, value in potential_earnings.items():
+        max_earning_per_week[key] = merge_sort(value)
     return potential_earnings, max_earning_per_week

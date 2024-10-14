@@ -8,6 +8,15 @@ MAX_EARNINGS = 0
 TASK_NUMBER = 0
 NUMBER_OF_TASKS = 15
 
+def max_earning(tasks, ordered_tasks, week_number, max_week, earnings):
+    max_earning = 0
+    for i in range(max_week-1, week_number, -1):
+        for task in ordered_tasks:
+            if task not in tasks:
+                if earnings[task][i] > max_earning:
+                    max_earning = earnings[task][i]
+                    break
+    return max_earning
 
 def calculate_earnings(tasks, earnings):
     """Calcula ganancias para todas las tareas hasta el momento."""
@@ -19,7 +28,7 @@ def calculate_earnings(tasks, earnings):
 
 def all_tasks_done(tasks, required_tasks):
     """Devuelve true si todas las tareas estan hechas, false si no."""
-    return len(tasks) != len(required_tasks)
+    return len(tasks) == len(required_tasks)
 
 
 def required_tasks_done(tasks, task, required_tasks):
@@ -42,7 +51,7 @@ def backtrack(tasks, earnings, required_tasks, max_weeks, max_earning_per_week):
     week_number = len(tasks)+1
     earnings_so_far = calculate_earnings(tasks, earnings)
     # Se finaliza la recursion cuando se alcanza el maximo de semanas o se agotan las tareas.
-    if week_number > max_weeks or not all_tasks_done(tasks, required_tasks):
+    if week_number > max_weeks or all_tasks_done(tasks, required_tasks):
         if earnings_so_far > MAX_EARNINGS:
             MAX_EARNINGS = earnings_so_far
             BEST_RESULT = tasks.copy()
@@ -51,16 +60,9 @@ def backtrack(tasks, earnings, required_tasks, max_weeks, max_earning_per_week):
             if task[TASK_NUMBER] not in tasks and required_tasks_done(tasks, task, required_tasks):
                 tasks.append(task[TASK_NUMBER])
                 task_earnings = calculate_earnings_for_task(task, earnings, week_number)
-                # La funcion de costo asume que todas las tareas de las semanas restantes otorgan
-                # el mismo beneficio que el maximo de esa semana.
-                try:
-                    max_earning = max_earning_per_week[week_number+1]
-                except KeyError:
-                    max_earning = max_earning_per_week[week_number]
-                # La ganancia estimada se define como la ganancia hasta ahora + la ganancia potencial
-                # si cada semana se ganase el maximo posible.
                 max_possible_earning = (earnings_so_far + task_earnings +
-                                        max_earning * (max_weeks - week_number))
+                                        max_earning(tasks, max_earning_per_week, week_number, max_weeks, earnings) *
+                                        (max_weeks - week_number))
                 # Solo se evaluan los estados posteriores si el beneficio estimado es mayor que el actual.
                 if max_possible_earning > MAX_EARNINGS:
                     backtrack(tasks, earnings, required_tasks, max_weeks, max_earning_per_week)
@@ -75,6 +77,7 @@ def exercise_1():
     tasks = []
     required_tasks = parse_tasks_file(sys.argv[1])
     earnings, max_earning_per_week = parse_earnings_file(sys.argv[2])
+    print(max_earning_per_week)
     MAX_WEEKS = len(earnings[1])
     start_time = time.time()
     backtrack(tasks, earnings, required_tasks, MAX_WEEKS, max_earning_per_week)
