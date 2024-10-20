@@ -10,7 +10,7 @@ def leer_matriz_archivo(nombre_archivo):
             matriz.append(fila)
     return matriz
 
-def max_suma_rec(matriz, n, m, memo, manzanas):
+def max_ganancia(matriz, n, m, memo, manzanas):
     if memo[n][m] != 0:
         return memo[n][m], manzanas[n][m]
     
@@ -24,10 +24,10 @@ def max_suma_rec(matriz, n, m, memo, manzanas):
     left = -1
     top = -1
     if m - 1 >= 0:
-        left, vec_left = max_suma_rec(matriz, n, m - 1, memo, manzanas)
+        left, vec_left = max_ganancia(matriz, n, m - 1, memo, manzanas)
     
     if n - 1 >= 0:
-        top, vec_top = max_suma_rec(matriz, n - 1, m, memo, manzanas)
+        top, vec_top = max_ganancia(matriz, n - 1, m, memo, manzanas)
     
     if left < value_to_compare and top < value_to_compare:
         memo[n][m] = value_to_compare
@@ -51,27 +51,14 @@ def max_suma_rec(matriz, n, m, memo, manzanas):
             manzanas[n][m] = copy.deepcopy(vec_max)
             return max_value, manzanas[n][m]
         else:
-            vec_left = manzanas[n][m - 1]
-            vec_top = manzanas[ n - 1][m]
-            if(max_value == top == left):
+            if(max_value < top and left <= top ):
                 memo[n][m] = max_value
-                min_length = min(len(vec_max), len(vec_left), len(vec_top))
-                if len(vec_max) == min_length:
-                    manzanas[n][m] = copy.deepcopy(vec_max)
-                elif len(vec_left) == min_length:
-                    manzanas[n][m] = copy.deepcopy(vec_left)
-                else:
-                    manzanas[n][m] = copy.deepcopy(vec_top)
-                return max_value, manzanas[n][m]
+                manzanas[n][m] = copy.deepcopy(vec_max)
+                return top, vec_top
             else:
-                if(max_value < top and left <= top ):
-                    memo[n][m] = max_value
-                    manzanas[n][m] = copy.deepcopy(vec_max)
-                    return top, vec_top
-                else:
-                    memo[n][m] = max_value
-                    manzanas[n][m] = copy.deepcopy(vec_max)
-                    return left, vec_left
+                memo[n][m] = max_value
+                manzanas[n][m] = copy.deepcopy(vec_max)
+                return left, vec_left
                 
 def main():
     if len(sys.argv) < 4:
@@ -89,7 +76,7 @@ def main():
         matriz = leer_matriz_archivo(nombre_archivo)
         memo = [[0 for _ in range(columnas)] for _ in range(filas)]
         manzanas = [[[] for _ in range(columnas)] for _ in range(filas)]
-        ganancia_total, manzanas_seleccionadas = max_suma_rec(matriz, filas-1, columnas-1, memo, manzanas)
+        ganancia_total, manzanas_seleccionadas = max_ganancia(matriz, filas-1, columnas-1, memo, manzanas)
         print("Manzanas: ", end="")
         print(" ".join(f"({fila},{columna})" for fila, columna in manzanas_seleccionadas))
         print("Ganancia: ", end="")
