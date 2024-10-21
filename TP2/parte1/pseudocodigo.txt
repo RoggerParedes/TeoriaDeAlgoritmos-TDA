@@ -1,0 +1,30 @@
+function max_ganancia(matriz, n, m, memo, manzanas):
+
+    if estoyEnCasoBase n=0 y m = 0:
+        memo[0][0] = matriz[0][0]
+        manzanas[0][0] = [(1, 1)]
+        return matriz[0][0], manzanas[0][0]
+    
+    if siYaEstaEnMemoria:
+        return memo[n][m], manzanas[n][m]
+    
+    left = if m-1 >= 0 max_ganancia(matriz, n, m-1, memo, manzanas) else -1
+    top = if n-1 >= 0 max_ganancia(matriz, n-1, m, memo, manzanas) else -1
+    valor_posicion_actual = matriz[n][m]
+    
+    if valor_posicion_actual > max(left, top):
+        memo[n][m] = valor_posicion_actual
+        manzanas[n][m] = [(n+1, m+1)]
+        return valor_posicion_actual, manzanas[n][m]
+    
+    for i hasta (n + 1):
+            for j hasta (m + 1):
+                if matriz[i][j] > valor_posicion_actual:
+                    if memo[i][j] + valor_posicion_actual > max_value:
+                        max_value = memo[i][j] + valor_posicion_actual
+                        vec_max = manzanas[i][j]
+    
+    memo[n][m] = max(max_value, top, left)
+    manzanas[n][m] = vec_max si max_value > max(top, left) sino mejor_camino(top, left)
+    
+    return memo[n][m], manzanas[n][m]
