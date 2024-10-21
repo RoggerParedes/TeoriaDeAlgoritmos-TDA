@@ -1,5 +1,6 @@
 import copy
 import sys
+
 def leer_matriz_archivo(nombre_archivo):
     matriz = []
     with open(nombre_archivo, 'r') as archivo:
@@ -7,6 +8,7 @@ def leer_matriz_archivo(nombre_archivo):
             fila = list(map(int, linea.strip().split(',')))
             matriz.append(fila)
     return matriz
+
 def max_ganancia(matriz, n, m, memo, manzanas):
     if memo[n][m] != 0:
         return memo[n][m], manzanas[n][m]
@@ -50,6 +52,7 @@ def max_ganancia(matriz, n, m, memo, manzanas):
                 memo[n][m] = max_value
                 manzanas[n][m] = copy.deepcopy(vec_max)
                 return left, vec_left
+            
 def main():
     if len(sys.argv) < 4:
         print("Uso: python tareas.py filas columnas archivo.txt")
